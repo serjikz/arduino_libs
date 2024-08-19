@@ -75,17 +75,18 @@ namespace Display {
         void ShowStoragedData() {
             Print(0, 0, GetStringDataByNumberInArray(_firstLineData));
             int secondLineData = _firstLineData + 1;
-            if (secondLineData > SENSORS_COUNT - 1) {
+            if (secondLineData > static_cast<int>(SENSORS_COUNT - 1)) {
                 secondLineData = 0;
             }
             Print(0, 1, GetStringDataByNumberInArray(secondLineData));
         }
 
     private:
-        LiquidCrystal_I2C* _lcdMain;
-        EncButton<EB_TICK, PIND2>* _btn;
         String _id;
         bool _inited;
+        LiquidCrystal_I2C* _lcdMain;
+        EncButton<EB_TICK, PIND2>* _btn;
+
         const size_t LOAD_CURSOR_POS = 3;
         static const size_t SENSORS_COUNT = 3;
         float _vals[SENSORS_COUNT]; // [0] - t balc, [1] - t street, [2] - humidity balc
