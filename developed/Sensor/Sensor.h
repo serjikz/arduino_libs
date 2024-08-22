@@ -7,10 +7,15 @@ class Sensor {
 public:
 	Sensor(String id);
 	virtual void Init() = 0;
+	bool IsInited() const { return _isInited; }
+
+protected:
 	const String& GetID() const;
 	String GetSensorNotInitializedMsg() const;
 
+	void InitLog(const char* msg, bool isOk);
+
 protected:
-	bool _inited;
+	bool _isInited = false;
 
 };

@@ -29,26 +29,39 @@ public:
 
         bool isAHTInited = _aht->begin();
         InitLog("AHT init", isAHTInited);
+        _aht_humidity = _aht->getHumiditySensor();
+        _aht_temp = _aht->getTemperatureSensor();
+
+        _isInited = isEns160Inited && isAHTInited;
     }
 
-private:
-    void InitLog(const char* msg, bool isOk)
+    String GetTemperature() 
     {
-         if (isOk) {
-            Serial.print("[I]");
-        } else {
-            Serial.print("[E]");
+        if (_aht_temp && _isInited) {
+            sensors_event_t temp;
+            _aht_temp->getEvent(&temp);
+            return String("Temp=" ) + String(temp.temperature) + String(char(223)) + String("C");
         }
-        Serial.print(" ENS160AHT2X::Init: ");
-        Serial.print(msg);
-        if (isOk) {
-            Serial.println(" done.");
-        } else {
-            Serial.println(" failed.");
-        }     
+        else {
+            return Super::GetSensorNotInitializedMsg();
+        }
+    }
+
+    String GetHumidity() 
+    {
+        if (_aht_humidity && _isInited) {
+            sensors_event_t humidity;
+            _aht_humidity->getEvent(&humidity);
+            return String("Humid=" ) + String(humidity.relative_humidity) + String("%");
+        }
+        else {
+            return Super::GetSensorNotInitializedMsg();
+        }
     }
 
 private:
-    Adafruit_AHTX0* _aht;
+    Adafruit_AHTX0* _aht;    
     ScioSense_ENS160* _ens160;
+    Adafruit_Sensor* _aht_humidity;
+    Adafruit_Sensor* _aht_temp;
 };

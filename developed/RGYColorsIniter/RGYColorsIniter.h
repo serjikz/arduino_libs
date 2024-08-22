@@ -1,18 +1,18 @@
 #pragma once
 
-// Class is needed to show a device initialization
-class RGYColorsIniter {
+class RGYDiodsInformer {
 
 	enum State {
 		None = 0,
 		RedLight = 1,
 		YellowLight,
 		GreenLight,
-		GreenBlink
+		GreenBlink,
+		RedBlink
 	};
 public:
 
-	RGYColorsIniter(int redDiodPin, int yellowDiodPin, int greenDiodPin) 
+	RGYDiodsInformer(int redDiodPin, int yellowDiodPin, int greenDiodPin) 
 		:_redPin(redDiodPin),
 		_yellowPin(yellowDiodPin),
 		_greenPin(greenDiodPin)
@@ -65,9 +65,16 @@ public:
 					}
 				break;
 				case State::GreenBlink:
-					if (millis() - _blinkStartTime >= BLINK_GREEN_DT)
+					if (millis() - _blinkStartTime >= BLINK_DT)
 					{
 						digitalWrite(_greenPin, LOW);
+						_state = State::None;
+					}
+				break;
+				case State::RedBlink:
+					if (millis() - _blinkStartTime >= BLINK_DT)
+					{
+						digitalWrite(_redPin, LOW);
 						_state = State::None;
 					}
 				break;
@@ -92,13 +99,23 @@ public:
 		}
 	}
 
+	void BlinkRedLight() 
+	{
+		if (_isStartEffectCompleted) 
+		{
+			_state = State::RedBlink;
+			_blinkStartTime = millis();
+			digitalWrite(_redPin, HIGH);
+		}
+	}
+
 protected:
 	bool _inited = false;
 	bool _isStartEffectCompleted= false;
 	unsigned long _startTime = 0;
 	unsigned long _blinkStartTime = 0;
 	const unsigned int COLOR_SWITCH_DT = 3000;
-	const unsigned int BLINK_GREEN_DT = 1000;
+	const unsigned int BLINK_DT = 1000;
 	int _redPin = 0;
 	int _yellowPin = 0;
 	int _greenPin = 0;
