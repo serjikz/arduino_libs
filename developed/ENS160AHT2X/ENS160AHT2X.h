@@ -35,6 +35,52 @@ public:
         _isInited = isEns160Inited && isAHTInited;
     }
 
+    void Measure()
+    {
+        _ens160->measure(true);
+        _ens160->measureRaw(true);
+    }
+
+    bool IsDataDangerous() const
+    {
+        if (_ens160->getAQI() > 3 || _ens160->geteCO2() > 800 || _ens160->getTVOC() > 220) {
+            return true;
+        }
+        return false;
+    }
+
+    String GetAQI() 
+    {
+        if (_aht_temp && _isInited) {
+            return String("AQI=" ) + String(_ens160->getAQI());
+        }
+        return Super::GetSensorNotInitializedMsg();
+    }
+
+    String GetAQI500() 
+    {
+        if (_aht_temp && _isInited) {
+            return String("AQI500=" ) + String(_ens160->getAQI500());
+        }
+        return Super::GetSensorNotInitializedMsg();
+    }
+
+    String GetTVOC() 
+    {
+        if (_aht_temp && _isInited) {
+            return String("TVOC=" ) + String(_ens160->getTVOC()) + String("ppb");
+        }
+        return Super::GetSensorNotInitializedMsg();
+    }
+
+    String GeteC02() 
+    {
+        if (_aht_temp && _isInited) {
+            return String("eCO2=" ) + String(_ens160->geteCO2()) + String("ppm");
+        }
+        return Super::GetSensorNotInitializedMsg();
+    }
+
     String GetTemperature() 
     {
         if (_aht_temp && _isInited) {
@@ -42,9 +88,7 @@ public:
             _aht_temp->getEvent(&temp);
             return String("Temp=" ) + String(temp.temperature) + String(char(223)) + String("C");
         }
-        else {
-            return Super::GetSensorNotInitializedMsg();
-        }
+        return Super::GetSensorNotInitializedMsg();
     }
 
     String GetHumidity() 

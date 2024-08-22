@@ -8,8 +8,10 @@ class RGYDiodsInformer {
 		YellowLight,
 		GreenLight,
 		GreenBlink,
-		RedBlink
+		RedBlink,
+		Alarm
 	};
+
 public:
 
 	RGYDiodsInformer(int redDiodPin, int yellowDiodPin, int greenDiodPin) 
@@ -78,6 +80,19 @@ public:
 						_state = State::None;
 					}
 				break;
+				case State::Alarm:
+					if (millis() - _alarmTime >= BLINK_DT / 2)
+					{
+						digitalWrite(_redPin, LOW);
+						digitalWrite(_yellowPin, HIGH);
+					}
+					if (millis() - _alarmTime >= BLINK_DT)
+					{
+						digitalWrite(_redPin, HIGH);
+						digitalWrite(_yellowPin, LOW);
+						_alarmTime = millis();
+					}
+				break;
 				default:
 				break;
 			}
@@ -91,7 +106,7 @@ public:
 
 	void BlinkGreenLight() 
 	{
-		if (_isStartEffectCompleted) 
+		if (_isStartEffectCompleted && _state != State::Alarm) 
 		{
 			_state = State::GreenBlink;
 			_blinkStartTime = millis();
@@ -109,11 +124,33 @@ public:
 		}
 	}
 
+	void StartAlarm()
+	{
+		if (_isStartEffectCompleted) 
+		{
+			_state = State::Alarm;
+			_alarmTime = millis();
+			digitalWrite(_greenPin, LOW);
+			digitalWrite(_redPin, HIGH);
+			digitalWrite(_yellowPin, LOW);
+		}
+	}
+
+	void TryStopAlarm()
+	{
+		if (_state == State::Alarm) {
+			_state = State::GreenBlink;
+			digitalWrite(_redPin, LOW);
+			digitalWrite(_yellowPin, LOW);
+		}
+	}
+
 protected:
 	bool _inited = false;
 	bool _isStartEffectCompleted= false;
 	unsigned long _startTime = 0;
 	unsigned long _blinkStartTime = 0;
+	unsigned long _alarmTime = 0;
 	const unsigned int COLOR_SWITCH_DT = 3000;
 	const unsigned int BLINK_DT = 1000;
 	int _redPin = 0;

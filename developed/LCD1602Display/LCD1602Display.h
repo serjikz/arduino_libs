@@ -3,10 +3,10 @@
 #include <EncButton.h>
 
 LiquidCrystal_I2C LCDMain(0x27, 16, 2);
-EncButton<EB_TICK, PIND2> btnMain;
+EncButton<EB_TICK, PIND5> btnMain;
 
 namespace Display {
-    static const int SENSORS_COUNT = 2;
+    static const int SENSORS_COUNT = 6;
 }
 
 namespace Display {
@@ -58,10 +58,12 @@ namespace Display {
         void Update() {
             _btn->tick();
             if (_btn->isClick()) {
-                _firstLineData--;
-                if (_firstLineData < 0) {
-                    _firstLineData = SENSORS_COUNT - 1;
-                }
+                Clear();
+                Serial.println("Tapped");
+                _firstRowIdx += 2;
+                _firstRowIdx %= SENSORS_COUNT;        
+                Serial.print("FirstRow=");        
+                Serial.println(_firstRowIdx);
             }
         }
 
@@ -72,11 +74,8 @@ namespace Display {
         }
 
         void ShowStoragedData() {
-            Print(0, 0, _vals[_firstLineData]);
-            int secondLineData = _firstLineData + 1;
-            if (secondLineData > static_cast<int>(SENSORS_COUNT - 1)) {
-                secondLineData = 0;
-            }
+            Print(0, 0, _vals[_firstRowIdx]);
+            int secondLineData = (_firstRowIdx + 1) % SENSORS_COUNT;
             Print(0, 1, _vals[secondLineData]);
         }
 
@@ -84,10 +83,10 @@ namespace Display {
         String _id;
         bool _inited;
         LiquidCrystal_I2C* _lcdMain;
-        EncButton<EB_TICK, PIND2>* _btn;
+        EncButton<EB_TICK, PIND5>* _btn;
 
         String _vals[SENSORS_COUNT];
-        int _firstLineData = 0;
+        int _firstRowIdx = 0;
     };
 }
 
